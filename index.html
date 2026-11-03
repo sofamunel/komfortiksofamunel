@@ -304,35 +304,36 @@
     </section>
 
     <section class="library" id="library">
-      <div class="section-label">Коллекция историй</div>
-      <h2>Библиотека работ</h2>
+  <div class="section-label">Коллекция работ</div>
+  <h2>Библиотека работ</h2>
 
-      <p class="about">
-        Ищи любимую новеллу, персонажа или историю.
-        Все публикации в этой библиотеке — мои авторские работы.
-      </p>
+  <p class="about">
+    Ищи любимую новеллу, персонажа или публикацию.
+    Здесь собраны мои фанфики, зарисовки и хэдканоны.
+  </p>
 
-      <input
-        class="search"
-        id="search"
-        type="search"
-        placeholder="Поиск по новеллам, персонажам и историям..."
-        aria-label="Поиск по авторским работам"
-      >
+  <input
+    class="search"
+    id="search"
+    type="search"
+    placeholder="Поиск по новеллам, персонажам и названиям..."
+    aria-label="Поиск по авторским работам"
+  >
 
-      <div class="filters">
-        <button class="filter active" type="button">Все работы</button>
-        <button class="filter" type="button">Фанфики</button>
-        <button class="filter" type="button">Зарисовки</button>
-        <button class="filter" type="button">Истории</button>
-      </div>
+  <div class="filters">
+    <button class="filter active" data-filter="all">Все работы</button>
+    <button class="filter" data-filter="fanfic">Фанфики</button>
+    <button class="filter" data-filter="sketch">Зарисовки</button>
+    <button class="filter" data-filter="headcanon">Хэдканоны</button>
+  </div>
 
-      <div class="empty">
-        <strong>Коллекция скоро откроется</strong>
-        Здесь появятся мои первые зарисовки
-        и фанфики по «Клубу Романтики».
-      </div>
-    </section>
+  <div id="works-grid"></div>
+
+  <div class="empty" id="empty-state">
+    <strong>Коллекция скоро откроется</strong>
+    Здесь появятся первые публикации.
+  </div>
+</section>
 
     <section>
       <p class="quote">
@@ -352,6 +353,104 @@
       с разработчиками игры.
     </p>
   </footer>
+<script>
+const works = [];
 
+let activeFilter = "all";
+
+const searchInput = document.getElementById("search");
+const filters = document.querySelectorAll(".filter");
+const worksGrid = document.getElementById("works-grid");
+const emptyState = document.getElementById("empty-state");
+
+function renderWorks() {
+  const query = searchInput.value.toLowerCase().trim();
+
+  const filteredWorks = works.filter(work => {
+    const matchesCategory =
+      activeFilter === "all" || work.type === activeFilter;
+
+    const searchableText = [
+      work.title,
+      work.novel,
+      work.characters
+    ].join(" ").toLowerCase();
+
+    return matchesCategory && searchableText.includes(query);
+  });
+
+  worksGrid.innerHTML = "";
+
+  filteredWorks.forEach(work => {
+    const card = document.createElement("article");
+    card.className = "empty";
+
+    const title = document.createElement("strong");
+    title.textContent = work.title;
+
+    const info = document.createElement("p");
+    info.textContent = work.novel + " · " + work.characters;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "filter";
+    button.textContent = "Читать";
+
+    button.addEventListener("click", () => {
+      worksGrid.innerHTML = "";
+
+      const page = document.createElement("div");
+      page.className = "empty";
+
+      const heading = document.createElement("strong");
+      heading.textContent = work.title;
+
+      const content = document.createElement("p");
+      content.textContent = work.content;
+      content.style.whiteSpace = "pre-wrap";
+
+      const back = document.createElement("button");
+      back.type = "button";
+      back.className = "filter";
+      back.textContent = "← Назад к библиотеке";
+      back.addEventListener("click", renderWorks);
+
+      page.append(heading, content, back);
+
+      if (work.telegram) {
+        const link = document.createElement("a");
+        link.href = work.telegram;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Оригинальная публикация в Telegram";
+        page.append(link);
+      }
+
+      worksGrid.append(page);
+      emptyState.hidden = true;
+    });
+
+    card.append(title, info, button);
+    worksGrid.append(card);
+  });
+
+  emptyState.hidden = filteredWorks.length > 0;
+}
+
+filters.forEach(button => {
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter;
+
+    filters.forEach(item => item.classList.remove("active"));
+    button.classList.add("active");
+
+    renderWorks();
+  });
+});
+
+searchInput.addEventListener("input", renderWorks);
+
+renderWorks();
+</script>
 </body>
 </html>
