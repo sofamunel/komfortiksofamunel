@@ -448,6 +448,14 @@ function renderWorks() {
   filteredWorks.forEach(work => {
     const card = document.createElement("article");
     card.className = "empty";
+const cover = document.createElement("img");
+cover.src = work.image;
+cover.alt = work.title;
+cover.style.width = "100%";
+cover.style.maxHeight = "360px";
+cover.style.objectFit = "cover";
+cover.style.marginBottom = "18px";
+cover.style.borderRadius = "4px";
 
     const title = document.createElement("strong");
     title.textContent = work.title;
@@ -494,7 +502,7 @@ function renderWorks() {
       emptyState.hidden = true;
     });
 
-    card.append(title, info, button);
+    card.append(cover, title, info, button);
     worksGrid.append(card);
   });
 
